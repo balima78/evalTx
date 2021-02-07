@@ -1,0 +1,10 @@
+name: scoreTx
+title:
+username:
+account: balima
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3596646
+bundleId: 4192594
+url: https://balima.shinyapps.io/scoreTx/
+when: 1612719193.83784
