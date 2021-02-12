@@ -99,8 +99,8 @@ txscore <- function(ageR = "18-34"
                       ifelse(causeESRD == "Hypertension", 0.1541,
                              ifelse(causeESRD == "Glomerulonephritis", 0.1447,
                                     ifelse(causeESRD == "Cystic Disease", -0.1870, 0.3209))))
-  timeD <- ifelse(timeD == "<1 yr", 0, 
-                  ifelse(timeD == ">=1yr, <3 yr", -0.2618,
+  timeD <- ifelse(timeD == "<1yr", 0, 
+                  ifelse(timeD == ">=1yr, <3yr", -0.2618,
                          ifelse(timeD == ">=3yr, <=5yr", -0.3747, -0.1432)))
   diabetesR <- ifelse(diabetesR == T, 0.3021, 0)
   coronary <- ifelse(coronary == T, 0.2617, 0)

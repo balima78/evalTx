@@ -1,6 +1,9 @@
 source("scripts/fxs.R")
+source("scripts/data4correlations.R")
 
 library(shinydashboard)
+
+library(plotly)
 
 shinyServer(function(input, output) {
   
@@ -16,7 +19,8 @@ shinyServer(function(input, output) {
   output$eptsBox <- renderValueBox({
     valueBox(
       eptsx(), "EPTS score", icon = icon("percent"),
-      color = ifelse(eptsx() > 20, "orange", "green")
+      color = ifelse(eptsx() < 20, "green", 
+                     ifelse(eptsx() < 40,"orange", "red"))
     )
   })
   
@@ -43,7 +47,8 @@ shinyServer(function(input, output) {
     valueBox(
       kdpix(), 
       "KDPI percentage", icon = icon("percent"),
-      color = ifelse(kdpix() > 20, "orange", "green")
+      color = ifelse(kdpix() < 20, "green", 
+                     ifelse(kdpix() < 40,"orange", "red"))
     )
   })
   
@@ -68,15 +73,81 @@ shinyServer(function(input, output) {
     valueBox(
       txscorex()
       , "5-year event probability", icon = icon("percent")
-      , color = ifelse(txscorex() > 50, "orange", "green")
+      , color = ifelse(txscorex() > 60, "orange", "green")
     )
   })
   
   
-  # teste <- reactive(input$ECD)
-  # output$testex <- renderText(teste())
+  output$plot.epts <- renderPlot({
+    cor.epts <- round(
+      with(txs.uk,
+           cor.test(txscore, epts, data=txs.score)
+      )[[4]],2) 
+    
+    p1 <- ggplot(txs.uk, aes(txscore, epts)) + 
+      geom_point() + 
+      geom_smooth() + 
+      geom_text(aes(x = 55, y = 110), 
+                label = paste("rho =", cor.epts,"(p.value < 0.001)"), 
+                parse = F) +
+      theme_bw()
+    
+    ggExtra::ggMarginal(p1, type = "histogram", binwidth = 5)
+
+  })
+  
+  output$plot.kdpi <- renderPlot({
+    cor.kdpi <- round(
+      with(txs.uk,
+           cor.test(txscore, kdpi, data=txs.score)
+      )[[4]],2) 
+    
+    p2 <- ggplot(txs.uk, aes(txscore, kdpi)) + 
+      geom_point() + 
+      geom_smooth() + 
+      geom_text(aes(x = 55, y = 90), 
+                label = paste("rho =", cor.kdpi,"(p.value < 0.001)"), 
+                parse = F) +
+      theme_bw()
+    
+    ggExtra::ggMarginal(p2, type = "histogram", binwidth = 5) 
+    
+  })
+  
+  output$plot.roc <- renderPlot({
+    
+    plot.roc(txs.uk$USgood, txs.uk$txscore, print.auc = T, ci = T)
+    
+  })
+  
+  output$plot.sens.spec <- renderPlotly({
+    spg<-ggplot(dataroc) + 
+      geom_line(aes(cutoff, sensitivity, color = "sens")) +
+      geom_line(aes(cutoff, specificity, color = "spec")) + 
+      scale_color_manual(values = c("red","blue")) + 
+      labs(color = "", x = "Transplant Score", y="Sens. & Spec. values"
+           ) +
+      scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+      theme_bw()  
+    ggplotly(spg)
+    
+  })
+  
+  output$plot.density <- renderPlot({
+    
+    ggplot(data.frame(rr$predictor,rr$response),
+           aes(rr.predictor, fill = factor(rr.response))) + geom_density(alpha = 0.2) + 
+      labs(fill = "prognostic", x = "Transplant Score", 
+           caption = "EPTS / KDPI prognostic: 1 - good outcome; 2 - bad outcome") + 
+      theme_bw()
+  })
+  
+  output$door <- renderImage({
+    return(list(src = "www/openDoor1.jpg"
+                ,contentType = "image/jpg"
+                ,alt = "door"))
+    }, deleteFile = FALSE)
+
   
 })
 
-
-#kdpi

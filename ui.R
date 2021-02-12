@@ -24,8 +24,8 @@ sidebar <- dashboardSidebar(
     menuItem("Transplant score", icon = icon("columns"), tabName = "Txscore"
              #, badgeLabel = "in progress", badgeColor = "yellow"
              ),
-    menuItem("Correlation", icon = icon("chart-line"), tabName = "corr",
-             badgeLabel = "in progress", badgeColor = "yellow"
+    menuItem("Correlation", icon = icon("chart-line"), tabName = "corr"
+             #, badgeLabel = "in progress", badgeColor = "yellow"
              ),
     menuItem("Disclaimer", icon = icon("exclamation-triangle"), tabName = "discl",
              badgeLabel = "Attention", badgeColor = "red"
@@ -75,7 +75,7 @@ frow3 <- fluidRow(
   ),
   box(h6("Donor's characteritics:"),
     checkboxInput("raceAA", "Black race", value = FALSE),
-    checkboxInput("hipertension", "Hipertensive", value = FALSE),
+    checkboxInput("hipertension", "Hypertensive", value = FALSE),
     checkboxInput("diabetesD", "Diabetic", value = FALSE),
     checkboxInput("stroke", "Stroke as cause of death", value = FALSE),
     checkboxInput("dcd", "Donation after cardiac death", value = FALSE),
@@ -110,7 +110,7 @@ frow5 <- fluidRow(
                      #choicesNames = c("White","Black","Hispanic", "Other"), 
                      choices = c("White","Black","Hispanic", "Other"), selected = "White", inline = T)
       , selectInput("timeD", "Time on dialysis (yrs)", 
-                    choices = c("<1 yr",">=1yr, <3 yr",">=3yr, <=5yr", ">5yr"),
+                    choices = c("<1yr",">=1yr, <3yr",">=3yr, <=5yr", ">5yr"),
                     selected = "<1 yr", multiple =F
                     #, selectize
                     , width = '50%'
@@ -181,7 +181,43 @@ body <- dashboardBody(
             ),
     
     tabItem(tabName = "corr",
-            h2("Correlation between scores")
+            h2("Correlation between scores"),
+            fluidRow(
+              box(title = "test"),
+              solidHeader = T,
+              status="info"),
+            fluidRow(
+              box(title = "Correlation between transplant score and EPTS", 
+                  solidHeader = T,
+                  footer = "We can observe a moderate positive correlation betweem transplant score from Molnar, et al and EPTS values from OPTN.",
+                  plotOutput("plot.epts"),
+                  status = "success"),
+              box(title = "Correlation between transplant score and KDPI", 
+                  solidHeader = T,
+                  #background = "red",
+                  footer = "Here we observe a week positive correlation betweem transplant score from Molnar, et al and KDPI values from OPTN.",
+                  plotOutput("plot.kdpi"),
+                  status = "warning"),
+              fluidRow(
+                box(title = "Sensitivity & Specificity curves"
+                    , status = "primary"
+                    , solidHeader = T
+                    , plotlyOutput("plot.sens.spec")),
+                box(title = "ROC curve"
+                    , plotOutput("plot.roc")
+                    , solidHeader = T
+                    , status = "primary"
+                    , footer = "With an Area Under the Curve (AUC) of 0.75, we can conclude that Transplant Score is a good descriminator for a good prognostic as defined by a kidney transplant with a donor recipient pair with KDPI < 40% and EPTS < 40%."
+                    )
+                ),
+              fluidRow(
+                box(title = "Density functions by prognostic"
+                    , plotOutput("plot.density")
+                    , solidHeader = T
+                    , status = "info"
+                    , footer = "As expected, to higher values of the transplant score will correspond a prognostic of a bad outcome for kidney transplantation.")
+              )
+              )
             ),
     
     tabItem(tabName = "discl",
@@ -190,6 +226,8 @@ body <- dashboardBody(
             , br()
             , strong("'score Tx' is part of Transplant Open Registry (TOR) initiative intended to provide high-quality information about kidney transplantation and based solely on open source resources.")
             , br()
+            , imageOutput("door")
+            , br()
             , HTML('<a href="https://bioestatisticas.wixsite.com/bioestatisticas/tor" style="text-align:right">Bruno A Lima, Oficina de Bioestatística, 2021 <i class="fa fa-creative-commons"></i></a>')
             )
     )
@@ -197,7 +235,7 @@ body <- dashboardBody(
 
 shinyUI(
   dashboardPage(skin = "blue"
-                ,header
+                , header
                 , sidebar
                 , body
                 )
