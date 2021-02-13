@@ -45,7 +45,7 @@ kdpi <- function(age = 40, raceAA = F, # African American T/F
                  hcv = F, 
                  mmB = 0, # number of mesmatches HLA-B
                  mmDR = 0, # number of mesmatches HLA-DR
-                 cold = 15, # cold esquemia time (hr)
+                 cold = 9, # cold esquemia time (hr)
                  enbloc = F, # enbloc kidney transplant T/F
                  double = F # double kidney transplant T/F
                  ){

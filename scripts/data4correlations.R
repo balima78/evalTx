@@ -137,3 +137,8 @@ dataroc<-data.frame(cutoff=round(rr$thresholds,1),
                     sensitivity=round(rr$sensitivities, 2),
                     specificity=round(rr$specificities, 2))
 
+#YOUDEN index
+# coords(rr, "best")
+youden <-  coords(rr, x="best", input="threshold", best.method="youden", transpose = FALSE)[1]
+
+#txs.uk %>% count(USgood)

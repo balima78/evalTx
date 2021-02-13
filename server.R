@@ -90,6 +90,8 @@ shinyServer(function(input, output) {
       geom_text(aes(x = 55, y = 110), 
                 label = paste("rho =", cor.epts,"(p.value < 0.001)"), 
                 parse = F) +
+      ylab("EPTS") + 
+      xlab("TRANSPLANTSCORE") +
       theme_bw()
     
     ggExtra::ggMarginal(p1, type = "histogram", binwidth = 5)
@@ -108,6 +110,8 @@ shinyServer(function(input, output) {
       geom_text(aes(x = 55, y = 90), 
                 label = paste("rho =", cor.kdpi,"(p.value < 0.001)"), 
                 parse = F) +
+      ylab("KDPI") + 
+      xlab("TRANSPLANTSCORE") +
       theme_bw()
     
     ggExtra::ggMarginal(p2, type = "histogram", binwidth = 5) 
@@ -125,7 +129,7 @@ shinyServer(function(input, output) {
       geom_line(aes(cutoff, sensitivity, color = "sens")) +
       geom_line(aes(cutoff, specificity, color = "spec")) + 
       scale_color_manual(values = c("red","blue")) + 
-      labs(color = "", x = "Transplant Score", y="Sens. & Spec. values"
+      labs(color = "", x = "TRANSPLANTSCORE", y="Sens. & Spec. values"
            ) +
       scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
       theme_bw()  
@@ -137,7 +141,7 @@ shinyServer(function(input, output) {
     
     ggplot(data.frame(rr$predictor,rr$response),
            aes(rr.predictor, fill = factor(rr.response))) + geom_density(alpha = 0.2) + 
-      labs(fill = "prognostic", x = "Transplant Score", 
+      labs(fill = "prognostic", x = "TRANSPLANTSCORE", 
            caption = "EPTS / KDPI prognostic: 1 - good outcome; 2 - bad outcome") + 
       theme_bw()
   })

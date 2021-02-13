@@ -21,10 +21,10 @@ sidebar <- dashboardSidebar(
   sidebarMenu(
     menuItem("OPTN scores", tabName = "optn", icon = icon("columns")
              ),
-    menuItem("Transplant score", icon = icon("columns"), tabName = "Txscore"
+    menuItem("TRANSPLANTSCORE", icon = icon("columns"), tabName = "Txscore"
              #, badgeLabel = "in progress", badgeColor = "yellow"
              ),
-    menuItem("Correlation", icon = icon("chart-line"), tabName = "corr"
+    menuItem("Correlations", icon = icon("chart-line"), tabName = "corr"
              #, badgeLabel = "in progress", badgeColor = "yellow"
              ),
     menuItem("Disclaimer", icon = icon("exclamation-triangle"), tabName = "discl",
@@ -71,7 +71,7 @@ frow3 <- fluidRow(
               value = 80, step = 1, sep = ""),
   sliderInput("cold", "select cold ischemia time (hours):",
               min = 0, max = 30,
-              value = 15, step = 1, sep = "")
+              value = 9, step = 1, sep = "")
   ),
   box(h6("Donor's characteritics:"),
     checkboxInput("raceAA", "Black race", value = FALSE),
@@ -164,7 +164,7 @@ body <- dashboardBody(
             ),
     
     tabItem(tabName = "Txscore",
-            h2("Transplant score")
+            h2("TRANSPLANTSCORE")
             , h5("In 2017, Molnar,  et al [4], proposed a tool [5] to predict allograft and patient survival upon kidney transplant. This tool uses data exclusively available at transplantation to predict event probabilities.") 
             , h5("Here we replicate TRANSPLANTESCORE.COM for mortality or graft failure as a combined outcome, computing the estimated 5-year event probability.")
             , h4("Estimated 5-year event (mortality or graft failure) probabilities:")
@@ -183,41 +183,84 @@ body <- dashboardBody(
     tabItem(tabName = "corr",
             h2("Correlation between scores"),
             fluidRow(
-              box(title = "test"),
-              solidHeader = T,
-              status="info"),
+              box(title = "Introduction"
+                  , h5("Deceased donors’ kidneys for transplantation are a scarce good, 
+                       so their use should be made in order to guarantee a good outcome as far as possible. 
+                       The development of risk scores that can predict the outcome inherent to the data-recipient pair 
+                       in transplantation has allowed for better decision making 
+                       in the allocation of organs and in patients’ clinical management. 
+                       Organ Procurement and Transplantation Network (OPTN) uses two different scores: 
+                       an Estimated Post Transplant Survival (EPTS) score (based on patients characteristics) 
+                       to summarize the fitness of the patient; and a Kidney Donor Percentual Index (KDPI), 
+                       that combines factors from donors and from the transplant, to summarize the risk of graft failure. 
+                       Also, Molnar, et al proposed a TRANSPLANTSCORE to predict posttransplant outcomes using pretransplant information.")
+                  , h5("With this analysis, we aim to understand how 
+                  TRANSPLANTSCORE correlates with the scores from OPTN, 
+                  i.e, EPTS and KDPI.")
+                  , solidHeader = T
+                  , status="danger"),
+              box(title = "Methods"
+                  , solidHeader = T
+                  , h5("Data from 140 simulated kidney transplants was obtained from 
+                  Kidney Allocation Rules Simulator (KARS) [6] application. 
+                       We used KARS' example data and applied UK Transplant algorithm for the selection of those donor-recipient pairs.")
+                  , h5("To each one of the selected pairs we computed the scores EPTS, KDPI and TRANSPLANTSCORE. 
+                  For each recipient we have data on age, time on dialysis and diabetic status; 
+                  for each donor, we have data on age, height and hypertension history; 
+                  and we also have data on the number of HLA mismatches. 
+                  For all other variables needed to compute the three scores, 
+                  we used the values presented as default in this application. 
+                       We also defined a variable fo good transplant prognostic to those pairs with both EPTS and KDPI values lower than 40%.")
+                  , h5("Correlations between TRANSPLANTSCORE and OPTN scores were analyzed with Pearson's correlation coefficients and tests. 
+                       The performance of TRANSPLANTSCORE to predict a good transplant prognostic as defined with EPTS < 40% and KDPI < 40% 
+                       was analysed with a receiver operating characteristic (ROC) curve (and the area under the curve) 
+                       and with the calculation of sensitivity and specificity values for different cutoffs of TRANSPLANTSCORE.")
+                  , status="warning")
+              ),
             fluidRow(
-              box(title = "Correlation between transplant score and EPTS", 
+              box(title = "Correlation between TRANSPLANTSCORE and EPTS", 
                   solidHeader = T,
-                  footer = "We can observe a moderate positive correlation betweem transplant score from Molnar, et al and EPTS values from OPTN.",
+                  footer = "We can observe a moderate positive correlation betweem TRANSPLANTSCORE from Molnar, et al and EPTS values from OPTN.",
                   plotOutput("plot.epts"),
-                  status = "success"),
-              box(title = "Correlation between transplant score and KDPI", 
+                  status = "info"),
+              box(title = "Correlation between TRANSPLANTSCORE and KDPI", 
                   solidHeader = T,
                   #background = "red",
-                  footer = "Here we observe a week positive correlation betweem transplant score from Molnar, et al and KDPI values from OPTN.",
+                  footer = "Here we observe a week positive correlation betweem TRANSPLANTSCORE from Molnar, et al and KDPI values from OPTN.",
                   plotOutput("plot.kdpi"),
-                  status = "warning"),
-              fluidRow(
-                box(title = "Sensitivity & Specificity curves"
-                    , status = "primary"
-                    , solidHeader = T
-                    , plotlyOutput("plot.sens.spec")),
-                box(title = "ROC curve"
-                    , plotOutput("plot.roc")
-                    , solidHeader = T
-                    , status = "primary"
-                    , footer = "With an Area Under the Curve (AUC) of 0.75, we can conclude that Transplant Score is a good descriminator for a good prognostic as defined by a kidney transplant with a donor recipient pair with KDPI < 40% and EPTS < 40%."
-                    )
+                  status = "info")
+            ),
+            fluidRow(
+              box(title = "Sensitivity & Specificity curves"
+                  , status = "primary"
+                  , solidHeader = T
+                  , plotlyOutput("plot.sens.spec")),
+              box(title = "ROC curve"
+                  , plotOutput("plot.roc")
+                  , solidHeader = T
+                  , status = "primary"
+                  , footer = "With an Area Under the Curve (AUC) of 0.75, we can conclude that TRANSPLANTSCORE is a good descriminator for a good prognostic, as defined by a kidney transplant with a donor-recipient pair with KDPI < 40% and EPTS < 40%, respectively."
+                  )
                 ),
-              fluidRow(
-                box(title = "Density functions by prognostic"
-                    , plotOutput("plot.density")
-                    , solidHeader = T
-                    , status = "info"
-                    , footer = "As expected, to higher values of the transplant score will correspond a prognostic of a bad outcome for kidney transplantation.")
+            fluidRow(
+              box(title = "Density functions by prognostic"
+                  , plotOutput("plot.density")
+                  , solidHeader = T
+                  , status = "primary"
+                  , footer = "Good outcome was defined as donor-recipient pairs with both EPTS and KDPI values lower than 40%.
+                  As expected, to higher values of the TRANSPLANTSCORE will correspond a prognostic of a bad outcome for kidney transplantation."
+                  ),
+              box(title = "Conclusions"
+                  , h5("With a rho = 0.59 (p value < 0.001), we can conclude that TRANSPLANTSCORE is more correlated with EPTS than with KDPI (rho = 0.29, p value < 0.01).")
+                  , h5("On the other hand, TRANSPLANTSCORE have a good ability to discriminate a good transplant outcome (defined as donor-recipient pair with KDPI < 40% and EPTS < 40%, respectively). 
+                       According to Youden method, we obtain the best cutoff for a TRANSPLANTSCORE of 61.7 with a specificity of 0.79 and a sensitivity of 0.65.")
+                  , h5("If we could have a crystal ball at transplantation, we would like to predict time-to-graft failure or patient survival. 
+                       The scores presented here, are not a crystal ball but they can help us to compare potential donor-recipient pairs and make better informed decisions.")
+                  , solidHeader = T
+                  , status="success")
               )
-              )
+            , a(href ="https://balima.shinyapps.io/kars/"
+                , "[6] - Kidney Allocation Rules Simulator (KARS). Oficina de Bioestatistica. accessed on February, 2021")
             ),
     
     tabItem(tabName = "discl",
