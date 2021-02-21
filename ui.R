@@ -12,6 +12,7 @@ library(shiny)
 library(shinythemes)
 library(plotly)
 library(shinydashboard)
+library(gt)
 
 header <- dashboardHeader(title="Transplant Open Registry - score Tx"
                           , titleWidth = 370
@@ -25,6 +26,9 @@ sidebar <- dashboardSidebar(
              #, badgeLabel = "in progress", badgeColor = "yellow"
              ),
     menuItem("Correlations", icon = icon("chart-line"), tabName = "corr"
+             #, badgeLabel = "in progress", badgeColor = "yellow"
+             ),
+    menuItem("Nyberg score", icon = icon("columns"), tabName = "nyberg"
              #, badgeLabel = "in progress", badgeColor = "yellow"
              ),
     menuItem("Disclaimer", icon = icon("exclamation-triangle"), tabName = "discl",
@@ -136,6 +140,53 @@ frow5 <- fluidRow(
                      choices = c("0","1-3","4-6"), selected = "0", inline = T)
       )
 )
+frow6 <- fluidRow(
+  valueBoxOutput("nybergscoreBox")
+)
+frow7 <- fluidRow(
+ box(title = "Donor's variables"
+      , solidHeader = T
+      , status="info"
+      , selectInput("age_N", "Donor's age (years)", 
+                    choices = c("<30","30-39","40-49", "50-59", "60-69", "70+"),
+                    selected = "<30", multiple =F
+                    #, selectize
+                    , width = '50%'
+                    # , size
+                    )
+      , selectInput("hyper_N", "History of hypertension", 
+                    choices = c("None","Yes; duration unknown","<=5y", "6-10y", ">10y"),
+                    selected = "None", multiple =F
+                    #, selectize
+                    , width = '50%'
+                    # , size
+                    )
+      , selectInput("cretin_N", "Creatinine clearance, mL/min", 
+                    choices = c("100+","75-99","50-74", "<50"),
+                    selected = "100+", multiple =F
+                    #, selectize
+                    , width = '50%'
+                    # , size
+                    )
+      , radioButtons("HLAmm_N", "HLA mismatch, no. of antigens",
+                     choices = c("0", "1-2", "3-4", "5-6"), 
+                     selected = "0", 
+                     inline = T
+                     )
+      , checkboxInput("CVA_N", "Cause of death: CVA", value = FALSE)
+      , footer = "CVA = cerebrovascular accident, 
+      including ischemic and hemorrhagic types."
+      )
+ , box(title = "Table from Nyberg, et al [7]", 
+       status = "primary", solidHeader = TRUE
+       #, width = 12
+       , imageOutput("table_Nyberg"
+                   , height = "auto"
+                   )
+       )
+  
+)
+
 
 body <- dashboardBody(
   tabItems(
@@ -262,12 +313,35 @@ body <- dashboardBody(
             , a(href ="https://balima.shinyapps.io/kars/"
                 , "[6] - Kidney Allocation Rules Simulator (KARS). Oficina de Bioestatistica. accessed on February, 2021")
             ),
-    
+    tabItem(tabName = "nyberg",
+            h2("Nyberg score")
+            , h4("In 2003, Nyberg et al [7], developed and presented a scoring system 
+                 to grade decesead donors' kidneys based on the success of renal transplantation. 
+                 In particular, this score is a quantitative approach to assessing kidneys from expanded criteria donors.")
+            , frow6
+            , frow7
+            , fluidRow(box(title = "Correlation between TRANSPLANTSCORE and Nyberg's score", 
+                           solidHeader = T,
+                           #background = "red",
+                           footer = "To analyse the correlation between TRANSPLANTSCORE and Nyberg's score we used the data from 140 simulated kidney transplants as previously described. 
+                           To compute Nyberg's score we only used the variables donor's age, history of hipertension (None / Yes, duration unknown) amd HLA mismatches. 
+                           As donors' age have the higher punctuation, this score is highly influenced by that variable. 
+                           In this analysis, we found a week positive correlation betweem TRANSPLANTSCORE from Molnar, et al 
+                           and Donors' score from Nyberg, et al.",
+                           plotOutput("plot.nyberg"),
+                           status = "info"))
+            , br()
+            , a(href ="https://pubmed.ncbi.nlm.nih.gov/12780563/", 
+            "[7] - Improved Scoring System to Assess Adult Donors For Cadaver Renal Transplantation. 
+                Nyberg S, Matas A, Kremers W, et al. 
+                American Journal of Transplantation 2003; 3: 715–721")
+            ),
     tabItem(tabName = "discl",
             h2("Disclaimer")
             , h4("Disclaimer: This application is intended for research purposes only, not for clinical or commercial use. It is a non-profit service to the scientific community, provided on an ‘AS-IS’ basis without any warranty, expressed or implied. The authors can not be held liable in any way for the service provided here.")
             , br()
-            , strong("'score Tx' is part of Transplant Open Registry (TOR) initiative intended to provide high-quality information about kidney transplantation and based solely on open source resources.")
+            , strong("'score Tx' is part of the Transplants Open Registry (TOR) initiative 
+                     intended to provide high-quality information about kidney transplantation and based solely on open source resources.")
             , br()
             , imageOutput("door")
             , br()

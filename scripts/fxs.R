@@ -128,5 +128,38 @@ txscore <- function(ageR = "18-34"
   
 }
 
-#txscore()$prob5y
+nybergscore <- function(age = "<30"# c("<30","30-39","40-49", "50-59", "60-69", "70+")
+                        , hyper = "None"# c("None","Yes; duration unknown","<=5y", "6-10y", ">10y")
+                        , cretin = "100+"# c("100+","75-99","50-74", "<50")
+                        , HLAmm = "0"# c("0", "1-2", "3-4", "5-6")
+                        , CVA = FALSE# Cause of death: CVA T/F
+                        ){
+  age <- case_when(age == "<30" ~ 0
+                     , age == "30-39" ~ 5
+                     , age == "40-49" ~ 10
+                     , age == "50-59" ~ 15
+                     , age == "60-69" ~ 20
+                     , TRUE ~ 25)
+  hyper <- case_when(hyper == "None" ~ 0
+                      , hyper == "Yes; duration unknown" ~ 2
+                      , hyper == "<=5y" ~ 2
+                      , hyper == "6-10y" ~ 3
+                      , TRUE ~ 4
+                      )
+  cretin <- case_when(cretin == "100+" ~ 0
+                        , cretin == "75-99" ~ 2
+                        , cretin == "50-74" ~ 3
+                        , TRUE ~ 4
+                      )
+  HLAmm <- case_when(HLAmm == "0" ~ 0
+                       , HLAmm == "1-2" ~ 1
+                       , HLAmm == "3-4" ~ 2
+                       , TRUE ~ 3
+                     )
+  CVA <- ifelse(CVA == TRUE, 3, 0)
+  
+  age + hyper + cretin + HLAmm + CVA
+  
+}
 
+nybergscore()

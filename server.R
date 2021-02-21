@@ -5,6 +5,7 @@ library(shinydashboard)
 
 library(plotly)
 
+
 shinyServer(function(input, output) {
   
   
@@ -81,7 +82,9 @@ shinyServer(function(input, output) {
   output$plot.epts <- renderPlot({
     cor.epts <- round(
       with(txs.uk,
-           cor.test(txscore, epts, data=txs.score)
+           cor.test(txscore, epts
+                    #, data=txs.score
+                    )
       )[[4]],2) 
     
     p1 <- ggplot(txs.uk, aes(txscore, epts)) + 
@@ -101,7 +104,9 @@ shinyServer(function(input, output) {
   output$plot.kdpi <- renderPlot({
     cor.kdpi <- round(
       with(txs.uk,
-           cor.test(txscore, kdpi, data=txs.score)
+           cor.test(txscore, kdpi
+                    #, data=txs.score
+                    )
       )[[4]],2) 
     
     p2 <- ggplot(txs.uk, aes(txscore, kdpi)) + 
@@ -151,7 +156,49 @@ shinyServer(function(input, output) {
                 ,contentType = "image/jpg"
                 ,alt = "door"))
     }, deleteFile = FALSE)
+  
+  output$table_Nyberg <- renderImage({
+    return(list(src = "www/table_Nyberg75.jpg",
+                contentType = "image/jpg",
+                alt = "Alignment"))
+  }, deleteFile = FALSE) 
 
   
+  nybergscorex<-reactive({
+    nybergscore(age = input$age_N
+                , hyper = input$hyper_N
+                , cretin = input$cretin_N
+                , HLAmm = input$HLAmm_N
+                , CVA = input$CVA_N)
+  })
+  
+  output$nybergscoreBox <- renderValueBox({
+    valueBox(
+      nybergscorex()
+      , "Donor's score", icon = icon("calculator")
+      , color = ifelse(nybergscorex() > 20, "orange", "green")
+    )
+  })
+  
+  output$plot.nyberg <- renderPlot({
+    cor.nyberg <- round(
+      with(txs.uk,
+           cor.test(txscore, Nyberg_score)
+      )[[4]],2) 
+    
+    p2 <- ggplot(txs.uk, aes(txscore, Nyberg_score)) + 
+      geom_point() + 
+      geom_smooth() + 
+      geom_text(aes(x = 55, y = 40), 
+                label = paste("rho =", cor.nyberg,"(p.value < 0.001)"), 
+                parse = F) +
+      ylab("Donors' score (Nyberg, et al) ") + 
+      xlab("TRANSPLANTSCORE") +
+      theme_bw()
+    
+    ggExtra::ggMarginal(p2, type = "histogram", binwidth = 5) 
+    
+  })
+
 })
 

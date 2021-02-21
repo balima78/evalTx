@@ -125,8 +125,26 @@ txs.uk <- txs.uk %>%
                                             ifelse(mmHLA < 4, "1-3","4-6"))
                                             
                                             )$prob5y,
-         USgood = ifelse(epts< 40 & kdpi < 40, 1, 2)
-                           ) 
+         USgood = ifelse(epts< 40 & kdpi < 40, 1, 2),
+         age_N = case_when(donor_age < 30 ~ "<30",
+                           donor_age < 40 ~ "30-39",
+                           donor_age < 50 ~ "40-49",
+                           donor_age < 60 ~ "50-59", 
+                           donor_age < 60 ~ "60-69", 
+                           TRUE ~ "70+"),
+         hyper_N = ifelse(hypertensive == T, "Yes; duration unknown", "None"),
+         HLAmm_N = case_when(mmHLA == 0 ~ "0", #c("0", "1-2", "3-4", "5-6")
+                             mmHLA < 3 ~ "1-2",
+                             mmHLA <5 ~ "3-4",
+                             TRUE ~ "5-6"),
+         Nyberg_score = nybergscore (age = age_N
+                                     , hyper = hyper_N
+                                     #, cretin = "100+"
+                                     , HLAmm = HLAmm_N
+                                     #, CVA = FALSE
+                                     )
+         ) %>% 
+  ungroup()
   
 # ROC plots
 library(pROC)
@@ -142,3 +160,11 @@ dataroc<-data.frame(cutoff=round(rr$thresholds,1),
 youden <-  coords(rr, x="best", input="threshold", best.method="youden", transpose = FALSE)[1]
 
 #txs.uk %>% count(USgood)
+
+# txs.uk %>% ggplot(aes(txscore, Nyberg_score)) + geom_point() + geom_smooth(method = "lm")
+# 
+# with(txs.uk,
+#      cor.test(txscore, Nyberg_score
+#               #, data=txs.score
+#      ))
+

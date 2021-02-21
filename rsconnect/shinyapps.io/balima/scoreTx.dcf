@@ -5,6 +5,6 @@ account: balima
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3596646
-bundleId: 4219605
+bundleId: 4253019
 url: https://balima.shinyapps.io/scoreTx/
-when: 1613255936.00017
+when: 1613934126.75877
