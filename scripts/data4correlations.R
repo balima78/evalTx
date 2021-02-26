@@ -82,12 +82,12 @@ txs.uk <- txs.uk %>%
             by=c("ID"="ID")) %>% 
   left_join(donors.uk %>% select(-bg),
             by=c("donor"="ID")) %>% 
-  mutate(timeD = ifelse(dialysis/12 < 1, "<1 yr", #",">=3yr, <=5yr", ">5yr"
-                        ifelse(dialysis/12 < 3, ">=1yr, <3yr",
-                               ifelse(dialysis/12 <= 5, ">=3yr, <=5yr", ">5yr"))),
-         ageR = ifelse(age < 35, "18-34",
-                       ifelse(age < 50, "35-49",
-                              ifelse(age < 65, "50-64", "65+")))) %>% 
+  # mutate(timeD = ifelse(dialysis/12 < 1, "<1 yr", #"<1 yr", ">=1yr, <3yr",">=3yr, <=5yr", ">5yr"
+  #                       ifelse(dialysis/12 < 3, ">=1yr, <3yr",
+  #                              ifelse(dialysis/12 <= 5, ">=3yr, <=5yr", ">5yr"))),
+  #        ageR = ifelse(age < 35, "18-34", # "35-49", "50-64", "65+"
+  #                      ifelse(age < 50, "35-49",
+  #                             ifelse(age < 65, "50-64", "65+")))) %>%
   rowwise() %>% 
   mutate(epts = epts(age = age,
                      diabetes = diabetesR,
@@ -109,11 +109,11 @@ txs.uk <- txs.uk %>%
                      #, enbloc = F
                      #, double = F
                      )$score_KDPI,
-         txscore = txscore(ageR = ageR
+         txscore = txscore(ageR = age # alterado para variavel continua; usa ageR para .v0
                            #, race = "White"
                            #, insurance = 0
                            #, causeESRD = "Other"
-                           , timeD = timeD
+                           , timeD = dialysis # alterado para variavel continua; usa timeD para .v0
                            , diabetesR = diabetesR
                            #, coronary = F
                            #, albumin = 1.5
@@ -121,26 +121,32 @@ txs.uk <- txs.uk %>%
                            , ageD = donor_age
                            #, diabetesD= "Absence"
                            #, ECD = F
-                           , mmHLA = ifelse(mmHLA == 0, "0",
-                                            ifelse(mmHLA < 4, "1-3","4-6"))
+                           , mmHLA_A = mmA
+                           , mmHLA_B = mmB
+                           , mmHLA_DR = mmDR
+                           # , mmHLA = ifelse(mmHLA == 0, "0", # usado para .v0
+                           #                  ifelse(mmHLA < 4, "1-3","4-6"))
                                             
                                             )$prob5y,
          USgood = ifelse(epts< 40 & kdpi < 40, 1, 2),
-         age_N = case_when(donor_age < 30 ~ "<30",
-                           donor_age < 40 ~ "30-39",
-                           donor_age < 50 ~ "40-49",
-                           donor_age < 60 ~ "50-59", 
-                           donor_age < 60 ~ "60-69", 
-                           TRUE ~ "70+"),
+         # age_N = case_when(donor_age < 30 ~ "<30",
+         #                   donor_age < 40 ~ "30-39",
+         #                   donor_age < 50 ~ "40-49",
+         #                   donor_age < 60 ~ "50-59", 
+         #                   donor_age < 60 ~ "60-69", 
+         #                   TRUE ~ "70+"),
          hyper_N = ifelse(hypertensive == T, "Yes; duration unknown", "None"),
-         HLAmm_N = case_when(mmHLA == 0 ~ "0", #c("0", "1-2", "3-4", "5-6")
-                             mmHLA < 3 ~ "1-2",
-                             mmHLA <5 ~ "3-4",
-                             TRUE ~ "5-6"),
-         Nyberg_score = nybergscore (age = age_N
+         # HLAmm_N = case_when(mmHLA == 0 ~ "0", #c("0", "1-2", "3-4", "5-6")
+         #                     mmHLA < 3 ~ "1-2",
+         #                     mmHLA <5 ~ "3-4",
+         #                     TRUE ~ "5-6"),
+         Nyberg_score = nybergscore (age = donor_age
                                      , hyper = hyper_N
                                      #, cretin = "100+"
-                                     , HLAmm = HLAmm_N
+                                     , HLAmm_A = mmA
+                                     , HLAmm_B = mmB
+                                     , HLAmm_DR = mmDR
+                                     #, HLAmm = HLAmm_N
                                      #, CVA = FALSE
                                      )
          ) %>% 

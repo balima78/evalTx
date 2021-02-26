@@ -38,7 +38,7 @@ epts <- function(age = 40,
 # function KDPI kdpi(age = , height = , weight= , mmB = 1, mmDR = 1)
 kdpi <- function(age = 40, raceAA = F, # African American T/F
                  hypertension = F, # History of Hypertension T/F
-                 diabetes = F, # diabetic T/F
+                 diabetes = 'Absence', # c('Absence', 'Presence', Unknown) translated to diabetic T/F
                  creatinine = 0.9, # mg/dL
                  stroke = F, # cause of death stroke T/F
                  height = 180, weight = 80, dcd = F, # Donation after cardiac death T/F
@@ -49,6 +49,8 @@ kdpi <- function(age = 40, raceAA = F, # African American T/F
                  enbloc = F, # enbloc kidney transplant T/F
                  double = F # double kidney transplant T/F
                  ){
+  
+  diabetes <- ifelse(diabetes == 'Presence', TRUE, FALSE)
   
   l1 <- -0.0194*ifelse(age<18, 1, 0)*(age-18)+0.0128*(age-40)+0.0107*ifelse(age>50, 1, 0)*(age-50)
   l2 <- 0.179*ifelse(raceAA,1,0)+0.123*ifelse(hypertension, 1, 0)+0.13*ifelse(diabetes, 1, 0)
@@ -73,11 +75,11 @@ kdpi <- function(age = 40, raceAA = F, # African American T/F
 
 
 # function txscore(ageR = , race = , insurance= , causeESRD = 1, timeD = 1, diabetesR = F, coronary = F, albumin = , hemoglobin =, ageD = , diabetesD= F, ECD = F, mmHLA = )
-txscore <- function(ageR = "18-34"
+txscore <- function(ageR = 20
                     , race = "White"
                     #, insurance = 0
                     , causeESRD = "Other"
-                    , timeD = "<1 yr"
+                    , timeD = 12 #
                     , diabetesR = F
                     , coronary = F
                     , albumin = 1.5
@@ -85,7 +87,72 @@ txscore <- function(ageR = "18-34"
                     , ageD = 30
                     , diabetesD= "Absence"
                     , ECD = F
-                    , mmHLA = "0"
+                    #, mmHLA = "0"
+                    , mmHLA_A = 0
+                    , mmHLA_B = 0
+                    , mmHLA_DR = 0
+){
+  
+  mmHLA_ <- as.numeric(mmHLA_A) + as.numeric(mmHLA_B) + as.numeric(mmHLA_DR)
+  mmHLA <- ifelse(mmHLA_ == 0 , '0',
+                  ifelse(mmHLA_ < 4, '1-3', '4-6'))
+  
+  ageR <- ifelse(ageR < 35 , 0.0993, 
+                 ifelse(ageR <50 , -0.0784,
+                        ifelse(ageR < 65, 0, 0.1881)))
+  race <- ifelse(race == "White", 0, 
+                 ifelse(race == "Black", 0.1609,
+                        ifelse(race == "Hispanic", -0.2554, -0.4475)))
+  causeESRD <- ifelse(causeESRD == "Diabetes", 0, 
+                      ifelse(causeESRD == "Hypertension", 0.1541,
+                             ifelse(causeESRD == "Glomerulonephritis", 0.1447,
+                                    ifelse(causeESRD == "Cystic Disease", -0.1870, 0.3209))))
+  timeD <- ifelse(timeD < 12, 0, 
+                  ifelse(timeD < 36, -0.2618,
+                         ifelse(timeD < 61, -0.3747, -0.1432)))
+  diabetesR <- ifelse(diabetesR == T, 0.3021, 0)
+  coronary <- ifelse(coronary == T, 0.2617, 0)
+  albumin <- (albumin - 4)*(-0.2644)
+  hemoglobin <- (hemoglobin - 12.3)*(-0.0451)
+  ageD <- (ageD - 39)*0.0059
+  diabetesD <- ifelse(diabetesD == "Absence", 0,  
+                      ifelse(diabetesD == "Presence", 0.4596, -0.3308))
+  ECD <- ifelse(ECD == T, 0.2082, 0)
+  mmHLA <- ifelse(mmHLA == "0" , 0,
+                  ifelse(mmHLA == "1-3", 0.3241, 0.3115))
+  
+  LP <- ageR + race + causeESRD + timeD + diabetesR + coronary + albumin + hemoglobin + ageD + diabetesD + ECD + mmHLA
+  
+  gamma <- 0.916
+  
+  PS = gamma * LP
+  
+  prob5y <- round((1-0.752292^exp(PS))*100,2)
+  
+  list(LP = LP
+       , gamma = gamma
+       , PS = PS
+       , prob5y = prob5y)
+  
+}
+
+##########################
+# function txscore(ageR = , race = , insurance= , causeESRD = 1, timeD = 1, diabetesR = F, coronary = F, albumin = , hemoglobin =, ageD = , diabetesD= F, ECD = F, mmHLA = )
+# versão inicial sem a ligação entre os inputs da app
+# esta é a versão usada no tab 'correlations'
+txscore.v0 <- function(ageR = "18-34"
+                       , race = "White"
+                       #, insurance = 0
+                       , causeESRD = "Other"
+                       , timeD = "<1 yr"
+                       , diabetesR = F
+                       , coronary = F
+                       , albumin = 1.5
+                       , hemoglobin = 10
+                       , ageD = 30
+                       , diabetesD= "Absence"
+                       , ECD = F
+                       , mmHLA = "0"
 ){
   
   
@@ -99,7 +166,7 @@ txscore <- function(ageR = "18-34"
                       ifelse(causeESRD == "Hypertension", 0.1541,
                              ifelse(causeESRD == "Glomerulonephritis", 0.1447,
                                     ifelse(causeESRD == "Cystic Disease", -0.1870, 0.3209))))
-  timeD <- ifelse(timeD == "<1yr", 0, 
+  timeD <- ifelse(timeD == "<1 yr", 0, # tinha aqui uma gralha, estava: "<1yr"
                   ifelse(timeD == ">=1yr, <3yr", -0.2618,
                          ifelse(timeD == ">=3yr, <=5yr", -0.3747, -0.1432)))
   diabetesR <- ifelse(diabetesR == T, 0.3021, 0)
@@ -127,18 +194,23 @@ txscore <- function(ageR = "18-34"
        , prob5y = prob5y)
   
 }
+##########################
 
-nybergscore <- function(age = "<30"# c("<30","30-39","40-49", "50-59", "60-69", "70+")
+nybergscore <- function(age = 20 # c("<30","30-39","40-49", "50-59", "60-69", "70+")
                         , hyper = "None"# c("None","Yes; duration unknown","<=5y", "6-10y", ">10y")
                         , cretin = "100+"# c("100+","75-99","50-74", "<50")
-                        , HLAmm = "0"# c("0", "1-2", "3-4", "5-6")
+                        , HLAmm_A = 0
+                        , HLAmm_B = 0
+                        , HLAmm_DR =0
+                        #, HLAmm = "0"# c("0", "1-2", "3-4", "5-6")
                         , CVA = FALSE# Cause of death: CVA T/F
                         ){
-  age <- case_when(age == "<30" ~ 0
-                     , age == "30-39" ~ 5
-                     , age == "40-49" ~ 10
-                     , age == "50-59" ~ 15
-                     , age == "60-69" ~ 20
+
+  age <- case_when(age < 30 ~ 0 # c("<30","30-39","40-49", "50-59", "60-69", "70+")
+                     , age < 40 ~ 5
+                     , age < 50 ~ 10
+                     , age < 60 ~ 15
+                     , age < 70 ~ 20
                      , TRUE ~ 25)
   hyper <- case_when(hyper == "None" ~ 0
                       , hyper == "Yes; duration unknown" ~ 2
@@ -151,11 +223,16 @@ nybergscore <- function(age = "<30"# c("<30","30-39","40-49", "50-59", "60-69", 
                         , cretin == "50-74" ~ 3
                         , TRUE ~ 4
                       )
-  HLAmm <- case_when(HLAmm == "0" ~ 0
-                       , HLAmm == "1-2" ~ 1
-                       , HLAmm == "3-4" ~ 2
-                       , TRUE ~ 3
-                     )
+  # HLAmm <- case_when(HLAmm == "0" ~ 0
+  #                      , HLAmm == "1-2" ~ 1
+  #                      , HLAmm == "3-4" ~ 2
+  #                      , TRUE ~ 3
+  #                    )
+                    
+  HLAmm <- case_when(as.numeric(HLAmm_A) + as.numeric(HLAmm_B) + as.numeric(HLAmm_DR) == 0 ~ 0,
+                     as.numeric(HLAmm_A) + as.numeric(HLAmm_B) + as.numeric(HLAmm_DR) <3 ~ 1,
+                     as.numeric(HLAmm_A) + as.numeric(HLAmm_B) + as.numeric(HLAmm_DR) <5 ~ 2,
+                     TRUE ~ 3)
   CVA <- ifelse(CVA == TRUE, 3, 0)
   
   age + hyper + cretin + HLAmm + CVA

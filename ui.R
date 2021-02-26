@@ -47,8 +47,8 @@ frow1 <- fluidRow(
     ),
   box(
     sliderInput("tdialysis", "Time on dialysis (months):",
-              min = 0, max = 400,
-              value = 200, step = 1, sep = ""),
+              min = 0, max = 200,
+              value = 60, step = 1, sep = ""),
     checkboxInput("priortx", "Prior transplants", value = FALSE)
     )
 )
@@ -80,13 +80,17 @@ frow3 <- fluidRow(
   box(h6("Donor's characteritics:"),
     checkboxInput("raceAA", "Black race", value = FALSE),
     checkboxInput("hipertension", "Hypertensive", value = FALSE),
-    checkboxInput("diabetesD", "Diabetic", value = FALSE),
+    radioButtons("diabetesD", "Diabetes",
+                 choices = c("Absence", "Presence", "Unknown"), selected = "Absence"
+                 , inline = T),
+    #checkboxInput("diabetesD", "Diabetic", value = FALSE),
     checkboxInput("stroke", "Stroke as cause of death", value = FALSE),
     checkboxInput("dcd", "Donation after cardiac death", value = FALSE),
     checkboxInput("hcv", "Hepatitis C", value = FALSE),
     h6("Transplant variables:"),
     checkboxInput("enbloc", "Enbloc kidney transplant", value = FALSE),
     checkboxInput("double", "Double kidney transplant", value = FALSE),
+    radioButtons("mmA", "number of HLA-A mismatches:", choices = 0:2, selected = 0, inline = T),
     radioButtons("mmB", "number of HLA-B mismatches:", choices = 0:2, selected = 0, inline = T),
     radioButtons("mmDR", "number of HLA-DR mismatches:", choices = 0:2, selected = 0, inline = T) 
     
@@ -96,13 +100,16 @@ frow4 <- fluidRow(
   valueBoxOutput("txscoreBox")
 )
 frow5 <- fluidRow(
-  box(selectInput("ageR", "Recipient's age", 
-                  choices = c("18-34","35-49","50-64", "65+"),
-                  selected = "18-34", multiple =F
-                  #, selectize
-                  , width = '50%'
-                  # , size
-                  )
+  box(sliderInput("ageR", "Recipient's age",
+                  min = 18, max = 99,
+                  value = 40, step = 1, sep = "")
+    # , selectInput("ageR", "Recipient's age", 
+    #               choices = c("18-34","35-49","50-64", "65+"),
+    #               selected = "18-34", multiple =F
+    #               #, selectize
+    #               , width = '50%'
+    #               # , size
+    #               )
       , selectInput("ESRD", "Cause of ESRD", 
                     choices = c("Diabetes","Hypertension","Glomerulonephritis", "Cystic Disease", "Other"),
                     selected = "Other", multiple =F
@@ -113,13 +120,16 @@ frow5 <- fluidRow(
       , radioButtons("race", "Recipient Race", 
                      #choicesNames = c("White","Black","Hispanic", "Other"), 
                      choices = c("White","Black","Hispanic", "Other"), selected = "White", inline = T)
-      , selectInput("timeD", "Time on dialysis (yrs)", 
-                    choices = c("<1yr",">=1yr, <3yr",">=3yr, <=5yr", ">5yr"),
-                    selected = "<1 yr", multiple =F
-                    #, selectize
-                    , width = '50%'
-                    # , size
-      )
+      , sliderInput("timeD", "Time on dialysis (months):",
+                    min = 0, max = 200,
+                    value = 60, step = 1, sep = "")
+      # , selectInput("timeD", "Time on dialysis (yrs)", 
+      #               choices = c("<1yr",">=1yr, <3yr",">=3yr, <=5yr", ">5yr"),
+      #               selected = "<1 yr", multiple =F
+      #               #, selectize
+      #               , width = '50%'
+      #               # , size
+      # )
       , checkboxInput("coronary", "Recipient Coronary Artery Disease", value = FALSE)
       , checkboxInput("diabetesR", "Recipient Diabetes", value = FALSE)
       ),
@@ -130,14 +140,18 @@ frow5 <- fluidRow(
                     min = 3, max = 20,
                     value = 10, step = 0.1, sep = "")
       ,sliderInput("ageDD", "Donor's age:",
-                   min = 18, max = 80,
+                   min = 18, max = 99,
                    value = 50, step = 1, sep = "")
       , radioButtons("diabetesDD", "Donor Diabetes",
-                     choices = c("Absence", "Presence", "Unknown"), selected = "Absence", inline = T)
+                     choices = c("Absence", "Presence", "Unknown"), selected = "Absence"
+                     , inline = T)
       , checkboxInput("ECD", "Extended Criteria Donor", value = FALSE)
-      , radioButtons("mmHLA", "HLA mismatches", 
-                     #label=c("0","1-3","4-6"), 
-                     choices = c("0","1-3","4-6"), selected = "0", inline = T)
+      , radioButtons("mmHLA_A", "number of HLA-A mismatches:", choices = 0:2, selected = 0, inline = T)
+      , radioButtons("mmHLA_B", "number of HLA-B mismatches:", choices = 0:2, selected = 0, inline = T)
+      , radioButtons("mmHLA_DR", "number of HLA-DR mismatches:", choices = 0:2, selected = 0, inline = T)
+      # , radioButtons("mmHLA", "HLA mismatches", 
+      #                #label=c("0","1-3","4-6"), 
+      #                choices = c("0","1-3","4-6"), selected = "0", inline = T)
       )
 )
 frow6 <- fluidRow(
@@ -147,13 +161,16 @@ frow7 <- fluidRow(
  box(title = "Donor's variables"
       , solidHeader = T
       , status="info"
-      , selectInput("age_N", "Donor's age (years)", 
-                    choices = c("<30","30-39","40-49", "50-59", "60-69", "70+"),
-                    selected = "<30", multiple =F
-                    #, selectize
-                    , width = '50%'
-                    # , size
-                    )
+      , sliderInput("age_N", "Donor's age (years)",
+                       min = 18, max = 99,
+                       value = 40, step = 1, sep = "")
+      # , selectInput("age_N", "Donor's age (years)", 
+      #               choices = c("<30","30-39","40-49", "50-59", "60-69", "70+"),
+      #               selected = "<30", multiple =F
+      #               #, selectize
+      #               , width = '50%'
+      #               # , size
+      #               )
       , selectInput("hyper_N", "History of hypertension", 
                     choices = c("None","Yes; duration unknown","<=5y", "6-10y", ">10y"),
                     selected = "None", multiple =F
@@ -168,11 +185,14 @@ frow7 <- fluidRow(
                     , width = '50%'
                     # , size
                     )
-      , radioButtons("HLAmm_N", "HLA mismatch, no. of antigens",
-                     choices = c("0", "1-2", "3-4", "5-6"), 
-                     selected = "0", 
-                     inline = T
-                     )
+     , radioButtons("HLAmm_A", "number of HLA-A mismatches:", choices = 0:2, selected = 0, inline = T)
+     , radioButtons("HLAmm_B", "number of HLA-B mismatches:", choices = 0:2, selected = 0, inline = T)
+     , radioButtons("HLAmm_DR", "number of HLA-DR mismatches:", choices = 0:2, selected = 0, inline = T)
+      # , radioButtons("HLAmm_N", "HLA mismatch, no. of antigens",
+      #                choices = c("0", "1-2", "3-4", "5-6"), 
+      #                selected = "0", 
+      #                inline = T
+      #                )
       , checkboxInput("CVA_N", "Cause of death: CVA", value = FALSE)
       , footer = "CVA = cerebrovascular accident, 
       including ischemic and hemorrhagic types."
@@ -290,7 +310,7 @@ body <- dashboardBody(
                   , plotOutput("plot.roc")
                   , solidHeader = T
                   , status = "primary"
-                  , footer = "With an Area Under the Curve (AUC) of 0.75, we can conclude that TRANSPLANTSCORE is a good descriminator for a good prognostic, as defined by a kidney transplant with a donor-recipient pair with KDPI < 40% and EPTS < 40%, respectively."
+                  , footer = "With an Area Under the Curve (AUC) of 0.73, we can conclude that TRANSPLANTSCORE is a good descriminator for a good prognostic, as defined by a kidney transplant with a donor-recipient pair with KDPI < 40% and EPTS < 40%, respectively."
                   )
                 ),
             fluidRow(
@@ -302,9 +322,9 @@ body <- dashboardBody(
                   As expected, to higher values of the TRANSPLANTSCORE will correspond a prognostic of a bad outcome for kidney transplantation."
                   ),
               box(title = "Conclusions"
-                  , h5("With a rho = 0.59 (p value < 0.001), we can conclude that TRANSPLANTSCORE is more correlated with EPTS than with KDPI (rho = 0.29, p value < 0.01).")
+                  , h5("With a rho = 0.55 (p value < 0.001), we can conclude that TRANSPLANTSCORE is more correlated with EPTS than with KDPI (rho = 0.29, p value < 0.01).")
                   , h5("On the other hand, TRANSPLANTSCORE have a good ability to discriminate a good transplant outcome (defined as donor-recipient pair with KDPI < 40% and EPTS < 40%, respectively). 
-                       According to Youden method, we obtain the best cutoff for a TRANSPLANTSCORE of 61.7 with a specificity of 0.79 and a sensitivity of 0.65.")
+                       According to Youden method, we obtain the best cutoff for a TRANSPLANTSCORE of 61.4 with a specificity of 0.71 and a sensitivity of 0.66.")
                   , h5("If we could have a crystal ball at transplantation, we would like to predict time-to-graft failure or patient survival. 
                        The scores presented here, are not a crystal ball but they can help us to compare potential donor-recipient pairs and make better informed decisions.")
                   , solidHeader = T
@@ -324,7 +344,7 @@ body <- dashboardBody(
                            solidHeader = T,
                            #background = "red",
                            footer = "To analyse the correlation between TRANSPLANTSCORE and Nyberg's score we used the data from 140 simulated kidney transplants as previously described. 
-                           To compute Nyberg's score we only used the variables donor's age, history of hipertension (None / Yes, duration unknown) amd HLA mismatches. 
+                           To compute Nyberg's score we only used the variables donor's age, history of hipertension (None / Yes, duration unknown) and HLA mismatches. 
                            As donors' age have the higher punctuation, this score is highly influenced by that variable. 
                            In this analysis, we found a week positive correlation betweem TRANSPLANTSCORE from Molnar, et al 
                            and Donors' score from Nyberg, et al.",
