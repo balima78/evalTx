@@ -14,7 +14,7 @@ library(plotly)
 library(shinydashboard)
 library(gt)
 
-header <- dashboardHeader(title="Transplants Open Registry - score Tx"
+header <- dashboardHeader(title="Transplants' Open Registry - score Tx"
                           , titleWidth = 370
                           )
 
@@ -363,7 +363,7 @@ body <- dashboardBody(
             , br()
             , strong("'score Tx' is part of the")
             , a(href = "https://transplants-open.netlify.app/index.html"
-                , "Transplants Open Registry (TOR)")
+                , "Transplants' Open Registry (TxOR)")
             , strong("initiative 
                      intended to provide high-quality information about kidney transplantation and based solely on open source resources.")
             , br()

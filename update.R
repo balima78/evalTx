@@ -8,5 +8,5 @@ rsconnect::setAccountInfo(name='balima',
                           secret='ijITxv6kuSsQMyaoLQ00uz5LtErEgTCd2Ue2HGnv')
 
 library(rsconnect)
-rsconnect::deployApp("D:/1.CHN/SPT2021/evalTx", appName = "scoreTx")
+rsconnect::deployApp("C:/Users/balim/Documents/4.APPs/evalTx", appName = "scoreTx")
 
