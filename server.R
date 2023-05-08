@@ -160,10 +160,10 @@ shinyServer(function(input, output, session) {
       theme_bw()
   })
   
-  output$door <- renderImage({
-    return(list(src = "www/openDoor1.jpg"
+  output$txor <- renderImage({
+    return(list(src = "www/txor.JPG"
                 ,contentType = "image/jpg"
-                ,alt = "door"))
+                ,alt = "TxOR"))
     }, deleteFile = FALSE)
   
   output$table_Nyberg <- renderImage({

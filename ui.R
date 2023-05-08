@@ -14,6 +14,7 @@ library(plotly)
 library(shinydashboard)
 library(gt)
 
+
 header <- dashboardHeader(title="Transplants' Open Registry - score Tx"
                           , titleWidth = 370
                           )
@@ -362,17 +363,18 @@ body <- dashboardBody(
             , h4("Disclaimer: This application is intended for research purposes only, not for clinical or commercial use. It is a non-profit service to the scientific community, provided on an ‘AS-IS’ basis without any warranty, expressed or implied. The authors can not be held liable in any way for the service provided here.")
             , br()
             , strong("'score Tx' is part of the")
-            , a(href = "https://transplants-open.netlify.app/index.html"
+            , a(href = "https://txor.netlify.app/"
                 , "Transplants' Open Registry (TxOR)")
             , strong("initiative 
                      intended to provide high-quality information about kidney transplantation and based solely on open source resources.")
             , br()
-            , imageOutput("door")
+            , imageOutput("txor")
             , br()
             , HTML('<a href="https://bioestatisticas.wixsite.com/bioestatisticas/tor" style="text-align:right">Bruno A Lima, Oficina de Bioestatística, 2021 <i class="fa fa-creative-commons"></i></a>')
             )
     )
 )
+
 
 shinyUI(
   dashboardPage(skin = "blue"
@@ -380,6 +382,5 @@ shinyUI(
                 , sidebar
                 , body
                 )
-  
-  
+ 
 )
